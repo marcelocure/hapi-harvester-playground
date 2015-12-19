@@ -3,13 +3,14 @@ const Hapi = require('hapi'),
     server = new Hapi.Server({}),
     adapter = hapiharvester.getAdapter('mongodb'),
     require_dir = require('require-directory'),
-    _ = require('underscore');
+    _ = require('underscore')
+    config = require('./config');
 
 server.connection({port: 9100});
 server.register({
     register: hapiharvester,
      options: {
-        adapter: adapter({mongodbUrl: 'mongodb://localhost/brandsdb'})
+        adapter: adapter({mongodbUrl: config.connectionString})
       }
 }, function () {
     var harvester = server.plugins['hapi-harvester'];
