@@ -1,23 +1,21 @@
 const Hapi = require('hapi'),
-    hapiharvester = require('./hapi-harvester'),
+    hapiHarvester = require('./hapi-harvester'),
     config = require('./config')
     require_dir = require('require-directory'),
     _ = require('underscore'),
-    adapter = hapiharvester.getAdapter('mongodb'),
+    adapter = hapiHarvester.getAdapter('mongodb'),
     server = new Hapi.Server({});
 
 server.connection({port: config.port});
 server.register({
-    register: hapiharvester,
-     options: {
-        adapter: adapter({mongodbUrl: config.connectionString})
-      }
+    register: hapiHarvester,
+     options: { adapter: adapter({mongodbUrl: config.connectionString}) }
 }, function () {
     var harvester = server.plugins['hapi-harvester'];
-    server.start(() => loadResources(harvester))
+    server.start(() => loadResources(server, harvester))
 });
 
-function loadResources(harvester) {
+function loadResources(server, harvester) {
     var models = require_dir(module, './models');
     _.map(Object.keys(models), function(model){
         server.route(models[model](harvester));
