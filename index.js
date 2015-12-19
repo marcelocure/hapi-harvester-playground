@@ -14,10 +14,12 @@ server.register({
       }
 }, function () {
     var harvester = server.plugins['hapi-harvester'];
-    server.start(() => {
-                            var models = require_dir(module, './models');
-                            _.map(Object.keys(models), function(model){
-                                server.route(models[model](harvester));
-                            });
-                        })
+    server.start(() => loadResources(harvester))
 });
+
+function loadResources(harvester) {
+    var models = require_dir(module, './models');
+    _.map(Object.keys(models), function(model){
+        server.route(models[model](harvester));
+    });
+}
