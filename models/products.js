@@ -1,12 +1,14 @@
 'use strict';
 var Joi = require('joi'),
 	model = {
-        type: 'sda',
+        type: 'products',
         attributes: {
-            code: Joi.string(),
             description: Joi.string()
+        },
+        relationships: {
+        	brands: {type: 'brands'}
         }
-    }
+	  }
 
 module.exports = function (harvesterApp) {
 	return [harvesterApp.routes['get'](model),
