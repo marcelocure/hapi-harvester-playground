@@ -1,12 +1,12 @@
 const Hapi = require('hapi'),
     hapiharvester = require('./hapi-harvester'),
-    server = new Hapi.Server({}),
-    adapter = hapiharvester.getAdapter('mongodb'),
+    config = require('./config')
     require_dir = require('require-directory'),
-    _ = require('underscore')
-    config = require('./config');
+    _ = require('underscore'),
+    adapter = hapiharvester.getAdapter('mongodb'),
+    server = new Hapi.Server({});
 
-server.connection({port: 9100});
+server.connection({port: config.port});
 server.register({
     register: hapiharvester,
      options: {
