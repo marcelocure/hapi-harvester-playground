@@ -7,13 +7,12 @@ const Hapi = require('hapi'),
     server = new Hapi.Server({});
 
 server.connection({port: config.port});
-server.register({
-    register: hapiHarvester,
-     options: { adapter: adapter({mongodbUrl: config.connectionString}) }
-}, function () {
-    var harvester = server.plugins['hapi-harvester'];
-    server.start(() => loadResources(server, harvester))
-});
+server.register([ //{register: require('hapi-swagger'), options: {apiVersion: require('./package.json').version}},
+                  { register: hapiHarvester, options: {adapter: adapter({mongodbUrl: config.connectionString}) }}]
+    , function () {
+        var harvester = server.plugins['hapi-harvester'];
+        server.start(() => loadResources(server, harvester))
+    });
 
 function loadResources(server, harvester) {
     var models = require_dir(module, './models');

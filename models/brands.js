@@ -3,8 +3,8 @@ var Joi = require('joi'),
 	model = {
         type: 'brands',
         attributes: {
-            code: Joi.string(),
-            description: Joi.string()
+            code: Joi.string().description('Brand code'),
+            description: Joi.string().description('Brand description')
         }
     }
 
