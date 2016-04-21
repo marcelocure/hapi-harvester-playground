@@ -4,7 +4,8 @@ var Joi = require('joi'),
         type: 'brands',
         attributes: {
             code: Joi.string().description('Brand code'),
-            description: Joi.string().description('Brand description')
+            description: Joi.string().description('Brand description'),
+            promoted: Joi.boolean().description('Whether the brand have a promotion')
         }
     }
 

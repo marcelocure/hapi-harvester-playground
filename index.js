@@ -5,11 +5,16 @@ const Hapi = require('hapi'),
     _ = require('underscore'),
     adapter = hapiHarvester.getAdapter('mongodb'),
     server = new Hapi.Server({}),
-    mongoose = require('mongoose');
+    mongoose = require('mongoose'),
+    events = require("events"),
+    eventEmitter = new events();
 
-mongoose.connect('mongodb://localhost/testing');
+mongoose.connect(config.connectionString);
+eventEmitter.on('promotion', function (body) { storeEvent('promotion', body) });
+eventEmitter.on('promotion', aggregatePromotion);
 
 var promotionEvent = mongoose.model('promotionEvents', { id: String });
+var eventTypes = {'promotion': promotionEvent};
 
 server.connection({port: config.port});
 server.register([ //{register: require('hapi-swagger'), options: {apiVersion: require('./package.json').version}},
@@ -23,7 +28,8 @@ server.route({
    method: 'POST',
    path:'/brands/{id}/promote', 
    handler: function (request, reply) {
-       storeEvent(encodeURIComponent(request.params.id));
+       var id = encodeURIComponent(request.params.id)
+       propagateEvent('promotion', {'id': id});
        return reply('hello world');
    }
 });
@@ -35,13 +41,26 @@ function loadResources(server, harvester) {
     });
 }
 
-function storeEvent(id) {
-    var promote = new promotionEvent({ id: id });
-    promote.save(function (err) {
+function storeEvent(eventType, body) {
+    var model = eventTypes[eventType];
+    console.log(model);
+    var event = new model(body);
+    event.save(function (err) {
       if (err) {
         console.log(err);
       } else {
         console.log('ok');
       }
     });
+}
+
+function propagateEvent(eventType, eventBody) {
+    eventEmitter.emit(eventType, eventBody);
+}
+
+function aggregatePromotion(body) { 
+    var brands = mongoose.model('brands');
+    return brands.findOneAndUpdate(body.id, {$set: {'attributes.promoted': true }})
+    .then(res => {console.log(res);})
+    .catch(error => {console.log(error);});
 }
